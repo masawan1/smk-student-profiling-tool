@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tes Karakter & Logika SMK</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .quiz-container { max-width: 600px; margin: 50px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="quiz-container" id="quiz-box">
+        <h2 class="text-center mb-4">Tes Potensi Siswa</h2>
+        
+        <!-- Form Data Diri -->
+        <div id="setup-area">
+            <div class="mb-3">
+                <label class="form-label">Nama Lengkap</label>
+                <input type="text" id="student-name" class="form-control" placeholder="Masukkan nama...">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Kelas</label>
+                <select id="student-class" class="form-control">
+                    <option value="10-PPLG">10 PPLG</option>
+                    <option value="10-DKV">10 DKV</option>
+                </select>
+            </div>
+            <button class="btn btn-primary w-100" onclick="startQuiz()">Mulai Tes</button>
+        </div>
+
+        <!-- Area Pertanyaan -->
+        <div id="question-area" class="hidden">
+            <h5 id="question-text" class="mb-4">Pertanyaan akan muncul di sini...</h5>
+            <div id="options-area" class="d-grid gap-2">
+                <!-- Tombol pilihan akan dibuat oleh JS -->
+            </div>
+        </div>
+
+        <!-- Area Hasil -->
+        <div id="result-area" class="hidden text-center">
+            <h3>Hasil Tes Anda:</h3>
+            <h1 id="score-display" class="display-4 text-success">...</h1>
+            <p id="desc-display"></p>
+            <button class="btn btn-outline-secondary" onclick="location.reload()">Ulangi</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Data Soal (Bisa kamu tambah sesuai kebutuhan)
+    const questions = [
+        { q: "Jika A=2 dan B=4, maka A x B adalah?", opt: ["6", "8", "10"], ans: "8", type: "IQ" },
+        { q: "Saya lebih suka bekerja dengan komputer daripada bertemu orang baru.", opt: ["Ya", "Tidak"], type: "Karakter", cat: "Introvert" },
+        { q: "Saya senang mencoba hal baru meskipun sulit.", opt: ["Ya", "Tidak"], type: "Karakter", cat: "Growth" }
+    ];
+
+    let currentIdx = 0;
+    let scoreIQ = 0;
+    let charSummary = { Introvert: 0, Growth: 0 };
+
+    function startQuiz() {
+        if(!document.getElementById('student-name').value) return alert("Isi nama dulu ya!");
+        document.getElementById('setup-area').classList.add('hidden');
+        document.getElementById('question-area').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById('question-text').innerText = q.q;
+        const optArea = document.getElementById('options-area');
+        optArea.innerHTML = "";
+
+        q.opt.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = "btn btn-outline-primary";
+            btn.innerText = o;
+            btn.onclick = () => nextQuestion(o);
+            optArea.appendChild(btn);
+        });
+    }
+
+    function nextQuestion(selected) {
+        const q = questions[currentIdx];
+        
+        // Hitung skor berdasarkan tipe
+        if (q.type === "IQ" && selected === q.ans) scoreIQ += 10;
+        if (q.type === "Karakter" && selected === "Ya") charSummary[q.cat]++;
+
+        currentIdx++;
+        if (currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('question-area').classList.add('hidden');
+        document.getElementById('result-area').classList.remove('hidden');
+        
+        const hasilKarakter = charSummary.Introvert > 0 ? "Fokus & Mandiri" : "Adaptif";
+        document.getElementById('score-display').innerText = `IQ: ${scoreIQ}`;
+        document.getElementById('desc-display').innerText = `Karakter Dominan: ${hasilKarakter}`;
+        
+        // NANTI DI SINI: Kita akan tambah fungsi kirim data ke Google Sheets
+    }
+</script>
+</body>
+</html>
