@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMK Potensi - Random Assessment</title>
+    <title>SMK Potensi - Assessment Tool</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; color: #333; }
         .card { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         .btn-option { 
             padding: 15px; text-align: left; border-radius: 12px; 
             transition: 0.3s; border: 2px solid #e9ecef; margin-bottom: 10px; width: 100%;
-            background: white;
+            background: white; font-weight: 500;
         }
         .btn-option:hover { background-color: #e7f1ff; border-color: #0d6efd; transform: translateY(-2px); }
+        .progress { height: 10px; border-radius: 10px; margin-bottom: 20px; }
         .hidden { display: none; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -28,49 +29,59 @@
         <div class="col-md-6">
             <div class="text-center mb-4">
                 <h2 class="fw-bold text-primary">SMK POTENSI</h2>
-                <p class="text-muted">Assessment Logika & Karakter (Mode Acak)</p>
+                <p class="text-muted">Assessment Logika & Karakter Siswa</p>
             </div>
 
             <div class="card p-4 animate__animated animate__fadeIn">
-                <!-- FORM IDENTITAS -->
+                <!-- 1. FORM DATA DIRI (Ketik Manual) -->
                 <div id="setup-area">
                     <h5 class="mb-3 text-center">Identitas Siswa</h5>
-                    <input type="text" id="student-name" class="form-control mb-3" placeholder="Nama Lengkap">
-                    <select id="student-class" class="form-select mb-4">
-                        <option value="">Pilih Kelas...</option>
-                        <option value="10-PPLG">10 PPLG</option>
-                        <option value="10-DKV">10 DKV</option>
-                        <option value="10-Broadcasting">10 Broadcasting</option>
-                    </select>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Nama Lengkap</label>
+                        <input type="text" id="student-name" class="form-control form-control-lg" placeholder="Masukkan nama lengkap">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold">Kelas</label>
+                        <!-- SEKARANG JADI INPUT TEKS MANUAL -->
+                        <input type="text" id="student-class" class="form-control form-control-lg" placeholder="Contoh: 10 PPLG 1">
+                    </div>
                     <button id="btn-start" class="btn btn-primary btn-lg w-100" onclick="startQuiz()">Mulai Tes</button>
                 </div>
 
-                <!-- AREA TEST -->
+                <!-- 2. AREA TEST -->
                 <div id="question-area" class="hidden">
-                    <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress">
                         <div id="progress-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width: 0%"></div>
                     </div>
-                    <p id="q-number" class="small text-muted"></p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-light text-primary border" id="q-number">Soal 1</span>
+                    </div>
                     <h4 id="question-text" class="mb-4 fw-bold"></h4>
                     <div id="options-area" class="d-grid"></div>
                 </div>
 
-                <!-- AREA HASIL -->
-                <div id="result-area" class="hidden text-center">
-                    <div style="font-size: 60px;">🎯</div>
-                    <h4 class="mt-3">Tes Selesai!</h4>
-                    <div id="loading-status" class="alert alert-info mt-3">
-                        <div class="loader"></div> Menyimpan data...
+                <!-- 3. AREA HASIL -->
+                <div id="result-area" class="hidden text-center animate__animated animate__bounceIn">
+                    <div style="font-size: 60px;">🚀</div>
+                    <h4 class="mt-3 fw-bold">Tes Berhasil Diselesaikan!</h4>
+                    <p class="text-muted px-3 small">Data Anda sedang dikirim ke database sekolah. Silakan tunggu hingga status berubah menjadi sukses.</p>
+                    
+                    <div id="loading-status" class="alert alert-info py-2 mt-3">
+                        <div class="loader"></div> <span class="ms-2">Mengirim data...</span>
                     </div>
-                    <button class="btn btn-dark w-100 mt-3" onclick="location.reload()">Selesai</button>
+                    
+                    <hr>
+                    <button class="btn btn-dark w-100 py-2" onclick="location.reload()">Selesai & Tutup</button>
                 </div>
             </div>
+            <p class="text-center mt-4 text-muted small">&copy; 2026 SMK Potensi Assessment System</p>
         </div>
     </div>
 </div>
 
 <script>
-    const scriptURL = 'TEMPEL_URL_WEB_APP_BAPAK_DI_SINI';
+    // URL Web App Bapak (Akhiran /exec)
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyeSY8dvw__wPsHWKXdyhTHDH7OvOUL1nHIND9W7RhRpWJInfpQMfkjMsBGWocfJ2Gs/exec';
     
     let questions = []; 
     let currentIdx = 0;
@@ -78,8 +89,8 @@
     let studentData = {};
     let userAnswers = [];
 
-    // FUNGSI PENGACAK (Fisher-Yates Shuffle)
-    function shuffle(array) {
+    // Fungsi Pengacak (Shuffle)
+    function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
@@ -88,39 +99,48 @@
     }
 
     async function startQuiz() {
-        const name = document.getElementById('student-name').value;
-        const sClass = document.getElementById('student-class').value;
-        if(!name || !sClass) return alert("Lengkapi data!");
-
-        document.getElementById('btn-start').innerHTML = "Mengacak Soal...";
+        const name = document.getElementById('student-name').value.trim();
+        const sClass = document.getElementById('student-class').value.trim();
+        
+        if(!name || !sClass) return alert("Harap isi Nama dan Kelas!");
+        
+        const btnStart = document.getElementById('btn-start');
+        btnStart.disabled = true;
+        btnStart.innerHTML = "Memuat Soal...";
 
         try {
             const response = await fetch(scriptURL);
-            let rawQuestions = await response.json();
+            let rawData = await response.json();
 
-            // 1. ACAK URUTAN SOAL
-            questions = shuffle(rawQuestions);
+            // ACAK URUTAN SOAL
+            questions = shuffleArray(rawData);
 
             studentData = { name, class: sClass };
             document.getElementById('setup-area').classList.add('hidden');
             document.getElementById('question-area').classList.remove('hidden');
             showQuestion();
-        } catch (err) { alert("Gagal memuat soal!"); }
+        } catch (err) {
+            alert("Gagal mengambil soal. Pastikan koneksi internet aktif!");
+            btnStart.disabled = false;
+            btnStart.innerHTML = "Mulai Tes";
+        }
     }
 
     function showQuestion() {
         const q = questions[currentIdx];
-        document.getElementById('progress-bar').style.width = `${(currentIdx / questions.length) * 100}%`;
+        const progress = (currentIdx / questions.length) * 100;
+        
+        document.getElementById('progress-bar').style.width = `${progress}%`;
         document.getElementById('q-number').innerText = `Soal ${currentIdx + 1} dari ${questions.length}`;
         document.getElementById('question-text').innerText = q.q;
         
         const optArea = document.getElementById('options-area');
         optArea.innerHTML = "";
 
-        // 2. ACAK URUTAN OPSI JAWABAN
-        let shuffledOptions = shuffle([...q.opt.filter(o => o !== "")]);
+        // ACAK URUTAN OPSI
+        let options = shuffleArray([...q.opt.filter(o => o && o !== "")]);
 
-        shuffledOptions.forEach(o => {
+        options.forEach(o => {
             const btn = document.createElement('button');
             btn.className = "btn btn-option animate__animated animate__fadeInUp";
             btn.innerText = o;
@@ -131,10 +151,10 @@
 
     function nextQuestion(selected) {
         const q = questions[currentIdx];
-        // Simpan jawaban asli (untuk direkap di Sheet)
-        userAnswers.push(`${q.q}: ${selected}`);
+        userAnswers.push(selected);
 
-        if (q.type === "IQ" && String(selected).trim() === String(q.ans).trim()) {
+        // Cek Jawaban Benar (Hanya tipe IQ)
+        if (q.type === "IQ" && String(selected).trim().toLowerCase() === String(q.ans).trim().toLowerCase()) {
             correctIQCount++;
         }
 
@@ -142,11 +162,11 @@
         if (currentIdx < questions.length) {
             showQuestion();
         } else {
-            finalize();
+            submitResults();
         }
     }
 
-    async function finalize() {
+    async function submitResults() {
         document.getElementById('question-area').classList.add('hidden');
         document.getElementById('result-area').classList.remove('hidden');
         
@@ -160,8 +180,19 @@
             allAnswers: userAnswers
         };
 
-        await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        document.getElementById('loading-status').innerHTML = "Data Berhasil Terkirim!";
+        try {
+            await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                cache: 'no-cache',
+                body: JSON.stringify(payload)
+            });
+            document.getElementById('loading-status').className = "alert alert-success py-2 mt-3";
+            document.getElementById('loading-status').innerHTML = "<b>Sukses:</b> Data Berhasil Disimpan.";
+        } catch (e) {
+            document.getElementById('loading-status').className = "alert alert-danger py-2 mt-3";
+            document.getElementById('loading-status').innerHTML = "<b>Gagal:</b> Koneksi Error.";
+        }
     }
 </script>
 </body>
