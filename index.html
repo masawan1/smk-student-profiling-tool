@@ -92,8 +92,7 @@
 </div>
 
 <script>
-    // --- GANTI DENGAN URL WEB APP BARU BAPAK ---
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzIOb3z2T9lZypB1cLilGVUJnSmY_ngzLeWxqunwhBt8LtYVAle66GKRoXfP3BGWzBS/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzCY6i_Jb78r9NZ4Nc9D02T8hKrQC1SNT4MW0GMP5oAgX-kBfSEzFNShAzaluipUn_b/exec'; // Ganti dengan URL /exec
     
     let questions = []; 
     let currentIdx = 0;
@@ -104,46 +103,34 @@
     async function startQuiz() {
         const name = document.getElementById('student-name').value;
         const sClass = document.getElementById('student-class').value;
-        
-        if(!name || !sClass) return alert("Isi Nama dan Kelas dahulu!");
-        
-        const startBtn = document.getElementById('btn-start');
-        startBtn.disabled = true;
-        startBtn.innerHTML = '<span class="loader"></span> Mengambil Soal...';
+        if(!name || !sClass) return alert("Identitas belum lengkap!");
+
+        const btn = document.getElementById('btn-start');
+        btn.disabled = true;
+        btn.innerHTML = "Memuat Data...";
 
         try {
-            const response = await fetch(scriptURL);
-            questions = await response.json();
-
-            if (!questions || questions.length === 0) {
-                throw new Error("Bank soal di Spreadsheet masih kosong. Isi baris ke-2!");
-            }
-
+            const res = await fetch(scriptURL);
+            questions = await res.json();
+            if(questions.length === 0) throw new Error("Bank soal kosong!");
+            
             studentData = { name, class: sClass };
             document.getElementById('setup-area').classList.add('hidden');
             document.getElementById('question-area').classList.remove('hidden');
             showQuestion();
-        } catch (err) {
-            alert("Error: " + err.message);
-            startBtn.disabled = false;
-            startBtn.innerHTML = 'Mulai Tes';
-        }
+        } catch (e) { alert("Error: " + e.message); btn.disabled = false; btn.innerHTML = "Mulai Tes"; }
     }
 
     function showQuestion() {
         const q = questions[currentIdx];
-        const progress = (currentIdx / questions.length) * 100;
-        
-        document.getElementById('progress-bar').style.width = `${progress}%`;
+        document.getElementById('progress-bar').style.width = `${(currentIdx / questions.length) * 100}%`;
         document.getElementById('q-number').innerText = `Soal ${currentIdx + 1} dari ${questions.length}`;
         document.getElementById('question-text').innerText = q.q;
         
         const optArea = document.getElementById('options-area');
         optArea.innerHTML = "";
-
-        // Menampilkan opsi A sampai E dari kolom B-F di Sheets
         q.opt.forEach(o => {
-            if(!o || String(o).trim() === "") return; 
+            if(!o) return;
             const btn = document.createElement('button');
             btn.className = "btn btn-option animate__animated animate__fadeIn";
             btn.innerText = o;
@@ -155,52 +142,32 @@
     function nextQuestion(selected) {
         const q = questions[currentIdx];
         userAnswers.push(selected);
-
-        // Scoring: Membandingkan pilihan dengan Kolom G (ans) di Sheets
         if (q.type === "IQ" && String(selected).trim().toLowerCase() === String(q.ans).trim().toLowerCase()) {
             correctIQCount++;
         }
-
         currentIdx++;
-        if (currentIdx < questions.length) {
-            showQuestion();
-        } else {
-            finalizeResult();
-        }
+        if (currentIdx < questions.length) { showQuestion(); } 
+        else { submitFinal(); }
     }
 
-    function finalizeResult() {
+    async function submitFinal() {
         document.getElementById('question-area').classList.add('hidden');
         document.getElementById('result-area').classList.remove('hidden');
         
         const totalIQ = questions.filter(q => q.type === "IQ").length;
         const finalScore = totalIQ > 0 ? Math.round((correctIQCount / totalIQ) * 100) : 0;
 
-        submitData(finalScore);
-    }
-
-    async function submitData(score) {
         const payload = {
             name: studentData.name,
             class: studentData.class,
-            score: score,
+            score: finalScore,
             allAnswers: userAnswers
         };
 
         try {
-            await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
-                body: JSON.stringify(payload)
-            });
-
-            document.getElementById('loading-status').className = "alert alert-success py-2";
-            document.getElementById('loading-status').innerHTML = "<b>Sukses:</b> Data tersimpan otomatis.";
-        } catch (error) {
-            document.getElementById('loading-status').className = "alert alert-danger py-2";
-            document.getElementById('loading-status').innerHTML = "<b>Gagal:</b> Koneksi terputus.";
-        }
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            document.getElementById('loading-status').innerHTML = "<b>Sukses: Data tersimpan rapi!</b>";
+        } catch (e) { document.getElementById('loading-status').innerHTML = "<b>Koneksi Gagal. Lapor Guru!</b>"; }
     }
 </script>
 
