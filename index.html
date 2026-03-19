@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMK Potensi - Assessment Tool</title>
-    <!-- CSS: Bootstrap + Google Fonts + Animate.css -->
+    <title>SMK Potensi - Random Assessment</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
     <style>
-        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; color: #333; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; }
         .card { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         .btn-option { 
             padding: 15px; text-align: left; border-radius: 12px; 
             transition: 0.3s; border: 2px solid #e9ecef; margin-bottom: 10px; width: 100%;
-            background: white; font-weight: 500;
+            background: white;
         }
         .btn-option:hover { background-color: #e7f1ff; border-color: #0d6efd; transform: translateY(-2px); }
-        .progress { height: 8px; border-radius: 10px; margin-bottom: 20px; }
         .hidden { display: none; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .header-title { color: #0d6efd; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -30,69 +26,51 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <!-- Header -->
             <div class="text-center mb-4">
-                <h2 class="fw-bold header-title">SMK POTENSI</h2>
-                <p class="text-muted">Assessment Logika & Karakter Siswa</p>
+                <h2 class="fw-bold text-primary">SMK POTENSI</h2>
+                <p class="text-muted">Assessment Logika & Karakter (Mode Acak)</p>
             </div>
 
             <div class="card p-4 animate__animated animate__fadeIn">
-                <!-- 1. FORM DATA DIRI -->
+                <!-- FORM IDENTITAS -->
                 <div id="setup-area">
                     <h5 class="mb-3 text-center">Identitas Siswa</h5>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Nama Lengkap</label>
-                        <input type="text" id="student-name" class="form-control form-control-lg" placeholder="Masukkan nama lengkap">
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label small fw-bold">Kelas</label>
-                        <select id="student-class" class="form-select form-select-lg">
-                            <option value="">Pilih Kelas...</option>
-                            <option value="10-PPLG">10 PPLG</option>
-                            <option value="10-DKV">10 DKV</option>
-                            <option value="10-Broadcasting">10 Broadcasting</option>
-                            <option value="10-TJKT">10 TJKT</option>
-                        </select>
-                    </div>
+                    <input type="text" id="student-name" class="form-control mb-3" placeholder="Nama Lengkap">
+                    <select id="student-class" class="form-select mb-4">
+                        <option value="">Pilih Kelas...</option>
+                        <option value="10-PPLG">10 PPLG</option>
+                        <option value="10-DKV">10 DKV</option>
+                        <option value="10-Broadcasting">10 Broadcasting</option>
+                    </select>
                     <button id="btn-start" class="btn btn-primary btn-lg w-100" onclick="startQuiz()">Mulai Tes</button>
                 </div>
 
-                <!-- 2. AREA TEST -->
+                <!-- AREA TEST -->
                 <div id="question-area" class="hidden">
-                    <div class="progress">
+                    <div class="progress mb-3" style="height: 10px;">
                         <div id="progress-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width: 0%"></div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge bg-light text-primary border" id="q-number">Memuat...</span>
-                    </div>
+                    <p id="q-number" class="small text-muted"></p>
                     <h4 id="question-text" class="mb-4 fw-bold"></h4>
                     <div id="options-area" class="d-grid"></div>
                 </div>
 
-                <!-- 3. AREA HASIL -->
-                <div id="result-area" class="hidden text-center animate__animated animate__bounceIn">
-                    <div style="font-size: 60px;">🚀</div>
-                    <h4 class="mt-3 fw-bold">Tes Berhasil Selesai!</h4>
-                    <p class="text-muted px-3">Terima kasih. Data Anda sedang diolah oleh sistem AI untuk memberikan rekomendasi belajar yang tepat.</p>
-                    
-                    <div id="loading-status" class="alert alert-info py-2">
-                        <div class="loader"></div> <span class="ms-2">Menyimpan data ke Cloud...</span>
+                <!-- AREA HASIL -->
+                <div id="result-area" class="hidden text-center">
+                    <div style="font-size: 60px;">🎯</div>
+                    <h4 class="mt-3">Tes Selesai!</h4>
+                    <div id="loading-status" class="alert alert-info mt-3">
+                        <div class="loader"></div> Menyimpan data...
                     </div>
-                    
-                    <hr>
-                    <button class="btn btn-dark w-100 py-2" onclick="location.reload()">Selesai & Tutup</button>
+                    <button class="btn btn-dark w-100 mt-3" onclick="location.reload()">Selesai</button>
                 </div>
             </div>
-            
-            <footer class="mt-4 text-center text-muted small">
-                &copy; 2026 SMK Potensi Assessment System
-            </footer>
         </div>
     </div>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzCY6i_Jb78r9NZ4Nc9D02T8hKrQC1SNT4MW0GMP5oAgX-kBfSEzFNShAzaluipUn_b/exec'; // Ganti dengan URL /exec
+    const scriptURL = 'TEMPEL_URL_WEB_APP_BAPAK_DI_SINI';
     
     let questions = []; 
     let currentIdx = 0;
@@ -100,25 +78,34 @@
     let studentData = {};
     let userAnswers = [];
 
+    // FUNGSI PENGACAK (Fisher-Yates Shuffle)
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
     async function startQuiz() {
         const name = document.getElementById('student-name').value;
         const sClass = document.getElementById('student-class').value;
-        if(!name || !sClass) return alert("Identitas belum lengkap!");
+        if(!name || !sClass) return alert("Lengkapi data!");
 
-        const btn = document.getElementById('btn-start');
-        btn.disabled = true;
-        btn.innerHTML = "Memuat Data...";
+        document.getElementById('btn-start').innerHTML = "Mengacak Soal...";
 
         try {
-            const res = await fetch(scriptURL);
-            questions = await res.json();
-            if(questions.length === 0) throw new Error("Bank soal kosong!");
-            
+            const response = await fetch(scriptURL);
+            let rawQuestions = await response.json();
+
+            // 1. ACAK URUTAN SOAL
+            questions = shuffle(rawQuestions);
+
             studentData = { name, class: sClass };
             document.getElementById('setup-area').classList.add('hidden');
             document.getElementById('question-area').classList.remove('hidden');
             showQuestion();
-        } catch (e) { alert("Error: " + e.message); btn.disabled = false; btn.innerHTML = "Mulai Tes"; }
+        } catch (err) { alert("Gagal memuat soal!"); }
     }
 
     function showQuestion() {
@@ -129,10 +116,13 @@
         
         const optArea = document.getElementById('options-area');
         optArea.innerHTML = "";
-        q.opt.forEach(o => {
-            if(!o) return;
+
+        // 2. ACAK URUTAN OPSI JAWABAN
+        let shuffledOptions = shuffle([...q.opt.filter(o => o !== "")]);
+
+        shuffledOptions.forEach(o => {
             const btn = document.createElement('button');
-            btn.className = "btn btn-option animate__animated animate__fadeIn";
+            btn.className = "btn btn-option animate__animated animate__fadeInUp";
             btn.innerText = o;
             btn.onclick = () => nextQuestion(o);
             optArea.appendChild(btn);
@@ -141,16 +131,22 @@
 
     function nextQuestion(selected) {
         const q = questions[currentIdx];
-        userAnswers.push(selected);
-        if (q.type === "IQ" && String(selected).trim().toLowerCase() === String(q.ans).trim().toLowerCase()) {
+        // Simpan jawaban asli (untuk direkap di Sheet)
+        userAnswers.push(`${q.q}: ${selected}`);
+
+        if (q.type === "IQ" && String(selected).trim() === String(q.ans).trim()) {
             correctIQCount++;
         }
+
         currentIdx++;
-        if (currentIdx < questions.length) { showQuestion(); } 
-        else { submitFinal(); }
+        if (currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finalize();
+        }
     }
 
-    async function submitFinal() {
+    async function finalize() {
         document.getElementById('question-area').classList.add('hidden');
         document.getElementById('result-area').classList.remove('hidden');
         
@@ -164,12 +160,9 @@
             allAnswers: userAnswers
         };
 
-        try {
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            document.getElementById('loading-status').innerHTML = "<b>Sukses: Data tersimpan rapi!</b>";
-        } catch (e) { document.getElementById('loading-status').innerHTML = "<b>Koneksi Gagal. Lapor Guru!</b>"; }
+        await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        document.getElementById('loading-status').innerHTML = "Data Berhasil Terkirim!";
     }
 </script>
-
 </body>
 </html>
